@@ -1,11 +1,41 @@
+<!-- 08/04/2026 Primeira Etapa, O primeiro Gráfico - Willian -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Rota Financeira</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rota Financeira - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h2>Bem-vindo ao Rota Financeira! 🚀</h2>
-    <p>Esta tela está sendo gerada por um arquivo HTML de verdade.</p>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">Rota Financeira</span>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto bg-white p-4 rounded shadow">
+                <h3 class="text-center mb-4">Nosso Primeiro Gráfico</h3>
+                <canvas id="meuGrafico"></canvas>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('meuGrafico');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Faturamento de Teste (R$)',
+                    data: [1200, 1900, 3000, 5000, 2000, 3000],
+                    borderWidth: 1,
+                    backgroundColor: '#0d6efd' // Azul padrão do Bootstrap
+                }]
+            }
+        });
+    </script>
 </body>
 </html>
