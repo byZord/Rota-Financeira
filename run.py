@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request 
 import mysql.connector # Tradutor para implementar o BD
+from datetime import date 
 
 # Aqui estamos criando o aplicativo de fato. A variável app é o coração do site.
 app = Flask(__name__) 
@@ -31,6 +32,7 @@ def testar_banco():
         return f"<h1>Erro ao tentar conectar banco: {e}</h1>"
 
 # Rota para receber os dados do usuario
+# Rota para receber os dados do usuario
 @app.route('/adicionar-transacao', methods=['POST'])
 def adicionar_transacao():
     # Primeiro capturar os dados usando os "names" que o front-end colocou lá no HTML
@@ -38,16 +40,33 @@ def adicionar_transacao():
     valor = request.form.get('valor')  
     tipo = request.form.get('tipo')
 
-    # Imprimir no terminal do VS code para auditar as transações
-    print("-----------------------------------------------")
-    print(f" DADOS RECEBIDOS DO FRONT-END:")
-    print(f"Descrição: {descricao}")
-    print(f"Valor: R$ {valor}")
-    print(f"Tipo: {tipo}")
-    print("-----------------------------------------------")
+    data_atual = date.today() #Pega a data atual do computador
 
-    return f"<h1>Dados de '{descricao}' recebidos com sucesso pelo Motor Python! </h1>"
+    try:
+        # Segundo: conectar o banco e preparar o cursor (COM PARÊNTESES!)
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+        
+        # 3: preparar o comando SQL seguro (COM A COLUNA DESCRICAO!)
+        sql = "INSERT INTO transacoes (usuario_id, descricao, valor, tipo, data_transacao) VALUES (%s, %s, %s, %s, %s)"
+        
+        # Injetar os valores. Usamos ID 1 porque é o ID dos "Adms testes"
+        valores = (1, descricao, valor, tipo, data_atual)
+        
+        # Executar e salvar (Commit é essencial, senão ele não grava)
+        cursor.execute(sql, valores)
+        conexao.commit()
 
+        cursor.close()
+        conexao.close()
+
+        print(f"SALVO NO BANCO: {descricao} - R$ {valor}")
+        return f"<h1>Transação de '{descricao}' salva no banco de dados com sucesso</h1>"
+    
+    except Exception as e:
+        return f"<h1>Erro ao tentar salvar no banco: {e}</h1>"
+    
+    
 # Trava de segurança - DEVE SER SEMPRE A ÚLTIMA COISA DO ARQUIVO!
 if __name__ == '__main__':
     app.run(debug=True)
