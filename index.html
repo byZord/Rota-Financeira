@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rota Financeira - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">Rota Financeira</span>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto bg-white p-4 rounded shadow">
+                <h3 class="text-center mb-4">Nosso Primeiro Gráfico</h3>
+                <canvas id="meuGrafico"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('meuGrafico');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Faturamento de Teste (R$)',
+                    data: [1200, 1900, 3000, 5000, 2000, 3000],
+                    borderWidth: 1,
+                    backgroundColor: '#0d6efd' 
+                }]
+            }
+        });
+    </script>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto bg-white p-4 rounded shadow">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Últimas Transações</h3>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNovaTransacao">
+                        + Nova Transação
+                    </button>
+                </div>
+                
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Tipo</th>
+                            <th>Valor (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>10/04/2026</td>
+                            <td>Supermercado</td>
+                            <td><span class="badge bg-danger">Despesa</span></td>
+                            <td>R$ 450,00</td>
+                        </tr>
+                        <tr>
+                            <td>05/04/2026</td>
+                            <td>Salário</td>
+                            <td><span class="badge bg-success">Receita</span></td>
+                            <td>R$ 3.500,00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalNovaTransacao" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastrar Transação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/adicionar-transacao" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <input type="text" class="form-control" name="descricao" placeholder="Ex: Conta de Luz" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Valor (R$)</label>
+                            <input type="number" class="form-control" name="valor" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" name="tipo">
+                                <option value="receita">Receita</option>
+                                <option value="despesa">Despesa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
