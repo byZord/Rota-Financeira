@@ -58,18 +58,26 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for transacao in lista_para_html %}
                         <tr>
-                            <td>10/04/2026</td>
-                            <td>Supermercado</td>
-                            <td><span class="badge bg-danger">Despesa</span></td>
-                            <td>R$ 450,00</td>
+                            <td>{{ transacao.data_transacao }}</td>
+                            <td>{{ transacao.descricao }}</td>
+                            <td>
+                                {% if transacao.tipo == 'receita' %}
+                                    <span class="badge bg-success">Receita</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Despesa</span>
+                                {% endif %}
+                            </td>
+                            <td>R$ {{ transacao.valor }}</td>
                         </tr>
+                        {% else %}
                         <tr>
-                            <td>05/04/2026</td>
-                            <td>Salário</td>
-                            <td><span class="badge bg-success">Receita</span></td>
-                            <td>R$ 3.500,00</td>
+                            <td colspan="4" class="text-center text-muted">
+                                Nenhuma transação encontrada. Clique em "+ Nova Transação" para começar!
+                            </td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -83,6 +91,7 @@
                     <h5 class="modal-title">Cadastrar Transação</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+                
                 <form action="/adicionar-transacao" method="POST">
                     <div class="modal-body">
                         <div class="mb-3">
@@ -103,10 +112,9 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Transação</button>
                     </div>
-                </form>
-            </div>
+                </form> </div>
         </div>
     </div>
 

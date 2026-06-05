@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request 
+from flask import Flask, render_template, request, redirect, url_for
 import mysql.connector # Tradutor para implementar o BD
 from datetime import date 
 
@@ -18,7 +18,31 @@ def conectar_banco():
 # Rota da página inicial
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        # Abre a conexão e cria o cursor
+        conexao = conectar_banco()
+
+        #O dictionary = True faz o python organizar os dados com os nomes das colubas (ex: linha[Descricao])
+        cursor = conexao.cursor(dictionary=True)
+
+        # O comando SQL para ler a tabela (SELECT), ordenado da mais mais nova para a mais velha
+        sql = "SELECT * FROM transacoes ORDER BY data_transacao DESC"
+        cursor.execute(sql)
+
+        # Pega todas as linhas que o banco achou e guarda na variavel
+        minhas_transacoes = cursor.fetchall()
+
+        # Fechando as portas
+        cursor.close()
+        conexao.close()
+        
+    except Exception as e:
+        # Trava para o pc: se não achar o banco, avisa no terminal e cria uma lista vazia
+        print(f"Aviso: Banco não conectado. Carregando site vazio. Error: {e}")
+        minhas_transacoes = []
+
+    # Carrega o HTML e INJETA a lista de dados lá dentro
+    return render_template('index.html', lista_para_html=minhas_transacoes)
 
 # Rota para testar o banco de dados
 @app.route('/testar-banco')
@@ -31,7 +55,6 @@ def testar_banco():
     except Exception as e:
         return f"<h1>Erro ao tentar conectar banco: {e}</h1>"
 
-# Rota para receber os dados do usuario
 # Rota para receber os dados do usuario
 @app.route('/adicionar-transacao', methods=['POST'])
 def adicionar_transacao():
@@ -61,9 +84,12 @@ def adicionar_transacao():
         conexao.close()
 
         print(f"SALVO NO BANCO: {descricao} - R$ {valor}")
-        return f"<h1>Transação de '{descricao}' salva no banco de dados com sucesso</h1>"
+        
+        # Redireciona para a pagina principal "index"
+        return redirect(url_for('index'))
     
     except Exception as e:
+        # SE DER ERRO, ELE CAI AQUI NA AMBULÂNCIA
         return f"<h1>Erro ao tentar salvar no banco: {e}</h1>"
     
     
