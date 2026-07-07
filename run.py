@@ -15,6 +15,7 @@ def conectar_banco():
     )
     return conexao
 
+
 # Rota da página inicial
 @app.route('/')
 def index():
@@ -22,10 +23,10 @@ def index():
         # Abre a conexão e cria o cursor
         conexao = conectar_banco()
 
-        #O dictionary = True faz o python organizar os dados com os nomes das colubas (ex: linha[Descricao])
+        #O dictionary = True faz o python organizar os dados com os nomes das colunas
         cursor = conexao.cursor(dictionary=True)
 
-        # O comando SQL para ler a tabela (SELECT), ordenado da mais mais nova para a mais velha
+        # O comando SQL para ler a tabela (SELECT)
         sql = "SELECT * FROM transacoes ORDER BY data_transacao DESC"
         cursor.execute(sql)
 
@@ -36,13 +37,37 @@ def index():
         cursor.close()
         conexao.close()
         
+        # ========================================================
+        # INÍCIO DA META #6: O Motor Matemático
+        # ========================================================
+        total_receitas = 0.0
+        total_despesas = 0.0
+        
+        # O Python percorre linha por linha das transações do banco
+        for transacao in minhas_transacoes:
+            if transacao['tipo'] == 'receita':
+                total_receitas += float(transacao['valor'])
+            elif transacao['tipo'] == 'despesa':
+                total_despesas += float(transacao['valor'])
+                
+        # O Saldo é simplesmente o que entrou menos o que saiu
+        saldo_atual = total_receitas - total_despesas
+        # ========================================================
+        
     except Exception as e:
-        # Trava para o pc: se não achar o banco, avisa no terminal e cria uma lista vazia
+        # Trava para o pc: se não achar o banco, avisa no terminal e zera tudo
         print(f"Aviso: Banco não conectado. Carregando site vazio. Error: {e}")
         minhas_transacoes = []
+        total_receitas = 0.0
+        total_despesas = 0.0
+        saldo_atual = 0.0
 
-    # Carrega o HTML e INJETA a lista de dados lá dentro
-    return render_template('index.html', lista_para_html=minhas_transacoes)
+    # Carrega o HTML e INJETA a lista de dados e as novas variáveis matemáticas!
+    return render_template('index.html', 
+                           lista_para_html=minhas_transacoes,
+                           receitas_html=total_receitas,
+                           despesas_html=total_despesas,
+                           saldo_html=saldo_atual)
 
 # Rota para testar o banco de dados
 @app.route('/testar-banco')

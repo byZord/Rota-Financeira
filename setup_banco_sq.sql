@@ -130,3 +130,34 @@ VALUES
 -- =================================================================
  
 SELECT * FROM investimentos; 
+
+-- ============================================
+-- Passo 10: Criar a tabela de Metas Financeiras 
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS metas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    nome_meta VARCHAR(100) NOT NULL,         -- Ex: Viagem, Comprar PC, Reserva
+    valor_alvo DECIMAL(10, 2) NOT NULL,      -- O objetivo final (Quanto quer juntar)
+    valor_atual DECIMAL(10, 2) DEFAULT 0.00, -- Quanto o usuário já conseguiu guardar
+    data_limite DATE,                        -- Prazo que o usuário definiu
+    
+    -- O Relacionamento: Essa meta pertence a um usuário!
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- Passo 11: Inserir Metas de Teste para o usuário 1
+-- ============================================
+
+INSERT INTO metas (usuario_id, nome_meta, valor_alvo, valor_atual, data_limite)
+VALUES 
+(1, 'Reserva de Emergência', 5000.00, 1500.00, '2026-12-31'),
+(1, 'Notebook Novo', 3500.00, 800.00, '2026-10-15');
+
+-- ============================================
+-- Passo 12: Conferir a nova tabela
+-- ============================================
+
+SELECT * FROM metas;
