@@ -5,6 +5,18 @@ from datetime import date
 # Aqui estamos criando o aplicativo de fato. A variável app é o coração do site.
 app = Flask(__name__) 
 
+# ========================================================
+# Filtro Personalizado do Jinja2 para Padrão Brasileiro
+# ========================================================
+@app.template_filter('moeda')
+def format_moeda(valor):
+    if valor is None:
+        valor = 0.0
+    # 1. Formata com 2 casas decimais e vírgula nos milhares (Padrão EUA: 1,500.00)
+    valor_formatado = f"{float(valor):,.2f}"
+    # 2. Truque de inversão: Troca vírgula por X, ponto por vírgula, e X por ponto
+    return valor_formatado.replace(',', 'X').replace('.', ',').replace('X', '.')
+
 # Configuração da fechadura do banco de dados
 def conectar_banco():
     conexao = mysql.connector.connect(
@@ -116,6 +128,34 @@ def adicionar_transacao():
     except Exception as e:
         # SE DER ERRO, ELE CAI AQUI NA AMBULÂNCIA
         return f"<h1>Erro ao tentar salvar no banco: {e}</h1>"
+
+# ========================================================
+# Rota para cadastrar Metas Financeiras
+# ========================================================
+@app.route('/adicionar-meta', methods=['POST'])
+def adicionar_meta():
+    nome_meta = request.form.get('nome_meta')
+    valor_alvo = request.form.get('valor_alvo')
+    data_limite = request.form.get('data_limite')
+    
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+        
+        sql = "INSERT INTO metas (usuario_id, nome_meta, valor_alvo, data_limite) VALUES (%s, %s, %s, %s)"
+        valores = (1, nome_meta, valor_alvo, data_limite)
+        
+        cursor.execute(sql, valores)
+        conexao.commit()
+
+        cursor.close()
+        conexao.close()
+        
+        print(f"NOVA META CADASTRADA: {nome_meta} - Alvo: R$ {valor_alvo}")
+        return redirect(url_for('index'))
+        
+    except Exception as e:
+        return f"<h1>Erro ao tentar salvar a meta: {e}</h1>"
     
     
 # Trava de segurança - DEVE SER SEMPRE A ÚLTIMA COISA DO ARQUIVO!
