@@ -34,20 +34,12 @@ def index():
     try:
         # Abre a conexão e cria o cursor
         conexao = conectar_banco()
-
-        #O dictionary = True faz o python organizar os dados com os nomes das colunas
         cursor = conexao.cursor(dictionary=True)
 
         # O comando SQL para ler a tabela (SELECT)
         sql = "SELECT * FROM transacoes ORDER BY data_transacao DESC"
         cursor.execute(sql)
-
-        # Pega todas as linhas que o banco achou e guarda na variavel
         minhas_transacoes = cursor.fetchall()
-
-        # Fechando as portas
-        cursor.close()
-        conexao.close()
         
         # ========================================================
         # INÍCIO DA META #6: O Motor Matemático
@@ -65,7 +57,27 @@ def index():
         # O Saldo é simplesmente o que entrou menos o que saiu
         saldo_atual = total_receitas - total_despesas
         # ========================================================
-        
+
+        # ========================================================
+        # INÍCIO DA META #9 (PYTHON): Buscar Metas e Calcular Porcentagem
+        # ========================================================
+        sql_metas = "SELECT * FROM metas ORDER BY data_limite ASC"
+        cursor.execute(sql_metas)
+        minhas_metas = cursor.fetchall()
+
+        # O Python calcula a porcentagem de cada meta para a Barra de Progresso
+        for meta in minhas_metas:
+            if float(meta['valor_alvo']) > 0:
+                porcentagem = (float(meta['valor_atual']) / float(meta['valor_alvo'])) * 100
+                meta['porcentagem'] = round(porcentagem, 1) # Arredonda para 1 casa decimal
+            else:
+                meta['porcentagem'] = 0
+        # ========================================================
+
+        # FECHANDO AS PORTAS AQUI, SOMENTE DEPOIS DE LER TUDO!
+        cursor.close()
+        conexao.close()
+
     except Exception as e:
         # Trava para o pc: se não achar o banco, avisa no terminal e zera tudo
         print(f"Aviso: Banco não conectado. Carregando site vazio. Error: {e}")
@@ -73,13 +85,15 @@ def index():
         total_receitas = 0.0
         total_despesas = 0.0
         saldo_atual = 0.0
+        minhas_metas = [] # <-- A variável de segurança adicionada!
 
     # Carrega o HTML e INJETA a lista de dados e as novas variáveis matemáticas!
     return render_template('index.html', 
                            lista_para_html=minhas_transacoes,
                            receitas_html=total_receitas,
                            despesas_html=total_despesas,
-                           saldo_html=saldo_atual)
+                           saldo_html=saldo_atual,
+                           lista_metas=minhas_metas)
 
 # Rota para testar o banco de dados
 @app.route('/testar-banco')
